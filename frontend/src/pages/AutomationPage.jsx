@@ -111,6 +111,7 @@ export default function AutomationPage() {
       const newWorkers = emails.map((em, idx) => ({
         sessionId: `SES-BATCH-${Math.floor(1000 + Math.random() * 9000)}-0${idx + 1}`,
         testEmail: em,
+        targetUrl: effectiveUrl,
         scrollDepth: 12 + Math.floor(Math.random() * 10),
         elapsed: 1,
         totalDuration: duration
