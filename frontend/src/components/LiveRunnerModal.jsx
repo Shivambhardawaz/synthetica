@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import AgentScrollMonitor from './AgentScrollMonitor';
 
 const DURATIONS = [
   { label: '10s', value: 10, desc: 'Rapid' },
@@ -211,6 +212,21 @@ export default function LiveRunnerModal({ onClose }) {
                   </div>
                 </div>
               )}
+
+              <div style={{ marginBottom: 14 }}>
+                <AgentScrollMonitor
+                  targetUrl={targetUrl}
+                  activeWorkers={[{
+                    sessionId: sessionId || 'SES-LIVE-01',
+                    testEmail: targetEmail,
+                    scrollDepth: scrollDepth || progress,
+                    elapsed: Math.round((progress / 100) * duration),
+                    totalDuration: duration
+                  }]}
+                  duration={duration}
+                />
+              </div>
+
               <div>
                 <div style={{ fontSize: '.7rem', color: 'var(--text-muted)', fontFamily: 'var(--mono)', marginBottom: 6 }}>⌁ Real-time Playwright Telemetry Stream</div>
                 <div className="terminal" ref={logsRef}>

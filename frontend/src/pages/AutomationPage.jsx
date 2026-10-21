@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import AgentScrollMonitor from '../components/AgentScrollMonitor';
 
 const DEFAULT_IDENTITIES = [
   { _id: 'u1', email: 'alex.taylor@synthetictest.internal' },
@@ -11,7 +12,17 @@ const DEFAULT_IDENTITIES = [
   { _id: 'u7', email: 'chloe.dupont@synthetictest.internal' },
   { _id: 'u8', email: 'liam.chen@synthetictest.internal' },
   { _id: 'u9', email: 'sophia.patel@synthetictest.internal' },
-  { _id: 'u10', email: 'noah.jensen@synthetictest.internal' }
+  { _id: 'u10', email: 'noah.jensen@synthetictest.internal' },
+  { _id: 'u11', email: 'maya.lin@synthetictest.internal' },
+  { _id: 'u12', email: 'ethan.hunt@synthetictest.internal' },
+  { _id: 'u13', email: 'isabella.rossi@synthetictest.internal' },
+  { _id: 'u14', email: 'lucas.silva@synthetictest.internal' },
+  { _id: 'u15', email: 'zoe.kravitz@synthetictest.internal' },
+  { _id: 'u16', email: 'adrian.cross@synthetictest.internal' },
+  { _id: 'u17', email: 'fiona.gallagher@synthetictest.internal' },
+  { _id: 'u18', email: 'kevin.hart@synthetictest.internal' },
+  { _id: 'u19', email: 'olivia.wilde@synthetictest.internal' },
+  { _id: 'u20', email: 'ryan.reynolds@synthetictest.internal' }
 ];
 
 const DEFAULT_WEBSITES = [
@@ -233,7 +244,7 @@ export default function AutomationPage() {
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">Sessions to Dispatch</label>
               <select className="form-select" value={count} onChange={e => setCount(Number(e.target.value))}>
-                {[1,2,3,5,10].map(n => <option key={n} value={n}>{n} session{n > 1 ? 's' : ''}</option>)}
+                {[1, 2, 3, 5, 10, 15, 20].map(n => <option key={n} value={n}>{n} session{n > 1 ? 's' : ''}</option>)}
               </select>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -251,6 +262,15 @@ export default function AutomationPage() {
           </button>
           {result && <div style={{ marginTop: 10, fontSize: '.8rem', color: result.startsWith('✓') ? 'var(--green)' : 'var(--red)' }}>{result}</div>}
         </div>
+      </div>
+
+      {/* Live Agent Browser Viewport Window */}
+      <div style={{ marginBottom: 20 }}>
+        <AgentScrollMonitor
+          targetUrl={effectiveUrl}
+          activeWorkers={active}
+          duration={duration}
+        />
       </div>
 
       <div className="card">
