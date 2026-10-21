@@ -25,8 +25,10 @@ export default function AutomationPage() {
   const [websites, setWebsites] = useState(DEFAULT_WEBSITES);
   const [identities, setIdentities] = useState(DEFAULT_IDENTITIES);
   const [urlMode, setUrlMode] = useState('select'); // 'select' | 'custom'
+  const [emailMode, setEmailMode] = useState('auto'); // 'auto' | 'manual'
   const [url, setUrl] = useState(DEFAULT_WEBSITES[0].url);
   const [customUrl, setCustomUrl] = useState('');
+  const [manualEmails, setManualEmails] = useState('');
   const [count, setCount] = useState(3);
   const [duration, setDuration] = useState(10);
   const [dispatching, setDispatching] = useState(false);
@@ -63,17 +65,28 @@ export default function AutomationPage() {
     setDispatching(true);
     setResult('');
 
-    // Ensure we have enough emails for the requested batch count
-    let pool = [...identities];
-    if (pool.length < count) {
-      const extra = Array.from({ length: count - pool.length }, (_, i) => ({
-        _id: 'auto_' + i,
-        email: `batch.tester${i + 1}@synthetictest.internal`
-      }));
-      pool = [...pool, ...extra];
-      setIdentities(pool);
+    // Determine emails list based on mode
+    let selectedEmails = [];
+    if (emailMode === 'manual' && manualEmails.trim()) {
+      selectedEmails = manualEmails
+        .split(/[\n,;]+/)
+        .map(e => e.trim())
+        .filter(e => e.length > 0);
     }
-    const emails = pool.slice(0, count).map(i => i.email);
+
+    // If fewer than requested count, fill from identities pool
+    if (selectedEmails.length < count) {
+      const remaining = count - selectedEmails.length;
+      let pool = [...identities];
+      for (let i = 0; i < remaining; i++) {
+        if (i < pool.length && !selectedEmails.includes(pool[i].email)) {
+          selectedEmails.push(pool[i].email);
+        } else {
+          selectedEmails.push(`custom.visitor${selectedEmails.length + 1}@synthetictest.internal`);
+        }
+      }
+    }
+    const emails = selectedEmails.slice(0, count);
 
     try {
       const r = await axios.post('/api/automation/batch', {
@@ -173,6 +186,49 @@ export default function AutomationPage() {
               />
             )}
           </div>
+
+          <div className="form-group">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <label className="form-label" style={{ marginBottom: 0 }}>Target Email(s)</label>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button
+                  type="button"
+                  className={`btn btn-sm ${emailMode === 'auto' ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ fontSize: '.68rem', padding: '2px 8px', borderRadius: 4 }}
+                  onClick={() => setEmailMode('auto')}
+                >
+                  Auto Pool
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-sm ${emailMode === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ fontSize: '.68rem', padding: '2px 8px', borderRadius: 4 }}
+                  onClick={() => setEmailMode('manual')}
+                >
+                  + Manual Email(s)
+                </button>
+              </div>
+            </div>
+            {emailMode === 'auto' ? (
+              <div style={{ fontSize: '.72rem', color: 'var(--text-muted)', background: 'var(--bg)', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)' }}>
+                Pool will automatically supply {count} test identities for this run.
+              </div>
+            ) : (
+              <div>
+                <textarea
+                  className="form-input"
+                  style={{ minHeight: 65, resize: 'vertical', fontFamily: 'var(--mono)', fontSize: '.76rem', lineHeight: 1.4 }}
+                  placeholder="Enter custom emails (comma or line separated):&#10;e.g. shivam@gmail.com, test.user@outlook.com"
+                  value={manualEmails}
+                  onChange={e => setManualEmails(e.target.value)}
+                />
+                <div style={{ fontSize: '.68rem', color: 'var(--accent-light)', marginTop: 4 }}>
+                  ✎ Type your exact email(s). They will be assigned directly to the automated browser sessions.
+                </div>
+              </div>
+            )}
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">Sessions to Dispatch</label>

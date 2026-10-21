@@ -11,6 +11,7 @@ const DEFAULT_IDENTITIES = [
 export default function TestUsersPage() {
   const [identities, setIdentities] = useState(DEFAULT_IDENTITIES);
   const [search, setSearch] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [generating, setGenerating] = useState(false);
 
   const load = () => {
@@ -23,6 +24,24 @@ export default function TestUsersPage() {
       .catch(() => {});
   };
   useEffect(() => { load(); }, [search]);
+
+  async function addManualUser(e) {
+    if (e) e.preventDefault();
+    if (!newEmail || !newEmail.includes('@')) return;
+    const item = {
+      _id: 'u_' + Date.now(),
+      email: newEmail.trim(),
+      type: 'manual',
+      status: 'active',
+      sessionCount: 0,
+      createdAt: new Date().toISOString()
+    };
+    try {
+      await axios.post('/api/identities', item);
+    } catch {}
+    setIdentities(prev => [item, ...prev]);
+    setNewEmail('');
+  }
 
   async function generate() {
     setGenerating(true);
@@ -61,13 +80,29 @@ export default function TestUsersPage() {
     <div>
       <div className="card" style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          <div className="card-title">◉ Synthetic Test Identities ({identities.length})</div>
+          <div className="card-title">◉ Test Identities Roster ({identities.length})</div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <input className="form-input" style={{ width: 240 }} placeholder="Search email..." value={search} onChange={e => setSearch(e.target.value)} />
+            <input className="form-input" style={{ width: 220 }} placeholder="Search email..." value={search} onChange={e => setSearch(e.target.value)} />
             <button className="btn btn-secondary" onClick={exportCSV}>⬇ Export CSV</button>
             <button className="btn btn-primary" onClick={generate} disabled={generating}>{generating ? 'Generating...' : '+5 Synthetic Users'}</button>
           </div>
         </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div className="card-header"><div className="card-title">⊕ Add Manual Test Email</div></div>
+        <form onSubmit={addManualUser} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 10 }}>
+          <input
+            type="email"
+            className="form-input"
+            placeholder="Type any custom email (e.g. shivam@gmail.com, mytest@company.com)..."
+            value={newEmail}
+            onChange={e => setNewEmail(e.target.value)}
+          />
+          <button type="submit" className="btn btn-primary" disabled={!newEmail || !newEmail.includes('@')}>
+            + Add to Roster
+          </button>
+        </form>
       </div>
       <div className="card">
         <div className="table-wrap">
