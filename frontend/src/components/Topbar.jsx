@@ -4,6 +4,7 @@ const PAGE_META = {
   users: { title: 'Test Users (CSV)', sub: 'Manage synthetic email identities for browser automation' },
   automation: { title: 'Automation Runner', sub: 'Dispatch Playwright sessions with concurrency controls' },
   analytics: { title: 'Analytics & Reports', sub: 'Filter and inspect all test session records' },
+  tracker: { title: 'Tracking Script', sub: 'Embed the Synthetica tracking script to count automated visits on your site' },
   demo: { title: 'Target Demo Site', sub: 'Authorized test target with live per-email visit counters' },
   audit: { title: 'Security & Audit', sub: 'Immutable audit trail of all platform actions' }
 };

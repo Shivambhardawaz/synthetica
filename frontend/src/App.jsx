@@ -6,6 +6,7 @@ import WebsitesPage from './pages/WebsitesPage';
 import TestUsersPage from './pages/TestUsersPage';
 import AutomationPage from './pages/AutomationPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import TrackerScriptPage from './pages/TrackerScriptPage';
 import DemoSitePage from './pages/DemoSitePage';
 import AuditPage from './pages/AuditPage';
 import LiveRunnerModal from './components/LiveRunnerModal';
@@ -20,6 +21,7 @@ export default function App() {
     users: <TestUsersPage />,
     automation: <AutomationPage />,
     analytics: <AnalyticsPage />,
+    tracker: <TrackerScriptPage />,
     demo: <DemoSitePage />,
     audit: <AuditPage />
   };

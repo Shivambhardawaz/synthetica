@@ -22,11 +22,35 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:5173'], credentials: true }));
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(cors({ origin: '*' }));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve embeddable tracker.js
+app.get('/tracker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.send(`
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  const email = p.get('test_email') || window.__SYNTHETICA_EMAIL || 'anonymous';
+  const sid = p.get('session_id') || 'visit_' + Date.now();
+  fetch('/api/analytics/track-visit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url: window.location.href,
+      testEmail: email,
+      sessionId: sid,
+      referrer: document.referrer,
+      screenResolution: window.innerWidth + 'x' + window.innerHeight
+    }),
+    keepalive: true
+  }).catch(function(){});
+})();
+  `);
+});
 
 // Screenshots static folder
 app.use('/screenshots', express.static(path.join(__dirname, '../automation/screenshots')));

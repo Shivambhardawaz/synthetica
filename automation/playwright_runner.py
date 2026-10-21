@@ -128,10 +128,16 @@ def main():
             t0 = time.time()
             response = None
 
-            emit_event("progress", stage="navigating", message=f"Connecting to {args.url} as {args.email}...", percent=5)
+            # Append telemetry identity parameters if not already present
+            target_nav_url = args.url
+            delim = "&" if "?" in target_nav_url else "?"
+            if "test_email" not in target_nav_url:
+                target_nav_url = f"{target_nav_url}{delim}test_email={args.email}&session_id={args.session_id}"
+
+            emit_event("progress", stage="navigating", message=f"Connecting to {target_nav_url} as {args.email}...", percent=5)
             
             try:
-                response = page.goto(args.url, wait_until="domcontentloaded", timeout=45000)
+                response = page.goto(target_nav_url, wait_until="domcontentloaded", timeout=45000)
                 dom_time = (time.time() - t0) * 1000
                 metrics["dom_content_loaded_ms"] = round(dom_time, 2)
             except Exception as nav_err:

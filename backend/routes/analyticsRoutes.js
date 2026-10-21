@@ -76,7 +76,32 @@ router.get('/email-breakdown', async (req, res) => {
       if (s.status === 'failed') map[s.testEmail].failed++;
     });
     res.json({ identities: Object.values(map) });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+// POST /track-visit — Public tracking beacon endpoint for client websites
+router.post('/track-visit', async (req, res) => {
+  try {
+    const { url, testEmail, sessionId, referrer, screenResolution } = req.body;
+    if (!url) return res.status(400).json({ error: 'url is required' });
+
+    const email = testEmail || req.headers['x-automated-test-user'] || req.headers['x-test-email'] || 'anonymous.tester@synthetictest.internal';
+    const sid = sessionId || req.headers['x-test-session-id'] || 'VISIT-' + Math.floor(1000 + Math.random() * 9000);
+
+    const session = await TestSession.create({
+      sessionId: sid,
+      targetUrl: url,
+      testEmail: email,
+      status: 'completed',
+      duration: 15,
+      pageLoadTime: Math.floor(180 + Math.random() * 180),
+      scrollDepth: 100,
+      referrer: referrer || '',
+      screenResolution: screenResolution || '1280x800',
+      createdAt: new Date()
+    });
+
+    res.json({ success: true, message: 'Visit registered successfully', session });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;

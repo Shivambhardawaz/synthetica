@@ -5,6 +5,7 @@ export default function Sidebar({ current, onNav }) {
     { id: 'users', icon: '◉', label: 'Test Users (CSV)' },
     { id: 'automation', icon: '▶', label: 'Automation' },
     { id: 'analytics', icon: '▲', label: 'Analytics & Reports' },
+    { id: 'tracker', icon: '⟨/⟩', label: 'Tracking Script' },
     { id: 'demo', icon: '◎', label: 'Target Demo Site', badge: 'Live' },
     { id: 'audit', icon: '◈', label: 'Security & Audit' }
   ];
