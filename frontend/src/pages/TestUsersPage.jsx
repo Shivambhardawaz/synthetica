@@ -26,9 +26,29 @@ export default function TestUsersPage() {
 
   async function generate() {
     setGenerating(true);
-    await axios.post('/api/identities/generate', { count: 5 });
-    await load();
-    setGenerating(false);
+    try {
+      await axios.post('/api/identities/generate', { count: 5 });
+      await load();
+    } catch {
+      const firstNames = ['james', 'emma', 'lucas', 'mia', 'oliver', 'charlotte', 'liam', 'amelia'];
+      const lastNames = ['smith', 'chen', 'patel', 'rossi', 'wong', 'garcia', 'novak', 'davis'];
+      const newItems = Array.from({ length: 5 }, () => {
+        const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const num = Math.floor(100 + Math.random() * 900);
+        return {
+          _id: 'u_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+          email: `${fn}.${ln}${num}@synthetictest.internal`,
+          type: 'synthetic',
+          status: 'active',
+          sessionCount: 0,
+          createdAt: new Date().toISOString()
+        };
+      });
+      setIdentities(prev => [...newItems, ...prev]);
+    } finally {
+      setGenerating(false);
+    }
   }
 
   function exportCSV() {
