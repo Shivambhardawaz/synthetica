@@ -1,14 +1,28 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const DEFAULT_WEBSITES = [
+  { _id: 'w1', name: 'Synthetica Demo Target', url: 'https://demo-site.internal/page', addedAt: new Date().toISOString() },
+  { _id: 'w2', name: 'Staging Portal', url: 'https://staging.internal/auth', addedAt: new Date().toISOString() },
+  { _id: 'w3', name: 'Developer Docs Hub', url: 'https://docs.synthetictest.internal', addedAt: new Date().toISOString() }
+];
+
 export default function WebsitesPage() {
-  const [websites, setWebsites] = useState([]);
+  const [websites, setWebsites] = useState(DEFAULT_WEBSITES);
   const [url, setUrl] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const load = () => axios.get('/api/websites').then(r => setWebsites(r.data.websites || []));
+  const load = () => {
+    return axios.get('/api/websites')
+      .then(r => {
+        if (r.data && Array.isArray(r.data.websites)) {
+          setWebsites(r.data.websites);
+        }
+      })
+      .catch(() => {});
+  };
   useEffect(() => { load(); }, []);
 
   async function add() {

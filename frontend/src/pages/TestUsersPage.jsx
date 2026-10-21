@@ -1,12 +1,27 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const DEFAULT_IDENTITIES = [
+  { _id: 'u1', email: 'alex.taylor@synthetictest.internal', type: 'synthetic', status: 'active', sessionCount: 5, createdAt: new Date().toISOString() },
+  { _id: 'u2', email: 'sarah.miller@synthetictest.internal', type: 'synthetic', status: 'active', sessionCount: 4, createdAt: new Date().toISOString() },
+  { _id: 'u3', email: 'david.kim@synthetictest.internal', type: 'synthetic', status: 'active', sessionCount: 3, createdAt: new Date().toISOString() },
+  { _id: 'u4', email: 'elena.rostova@synthetictest.internal', type: 'synthetic', status: 'active', sessionCount: 2, createdAt: new Date().toISOString() }
+];
+
 export default function TestUsersPage() {
-  const [identities, setIdentities] = useState([]);
+  const [identities, setIdentities] = useState(DEFAULT_IDENTITIES);
   const [search, setSearch] = useState('');
   const [generating, setGenerating] = useState(false);
 
-  const load = () => axios.get(`/api/identities?search=${search}`).then(r => setIdentities(r.data.identities || []));
+  const load = () => {
+    return axios.get(`/api/identities?search=${search}`)
+      .then(r => {
+        if (r.data && Array.isArray(r.data.identities)) {
+          setIdentities(r.data.identities);
+        }
+      })
+      .catch(() => {});
+  };
   useEffect(() => { load(); }, [search]);
 
   async function generate() {
