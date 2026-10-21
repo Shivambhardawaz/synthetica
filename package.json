@@ -1,0 +1,12 @@
+{
+  "name": "email-visit-tracker-root",
+  "version": "1.0.0",
+  "description": "Email-Based Website Visit Tracking & Browser Automation Platform",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix frontend install && python -m pip install -r automation/requirements.txt && python -m playwright install chromium",
+    "seed": "npm --prefix backend run seed",
+    "backend": "npm --prefix backend start",
+    "frontend": "npm --prefix frontend dev",
+    "test:playwright": "python automation/playwright_runner.py --url http://localhost:5000/api/demo/page --email test.verification@synthetictest.internal --session-id SES-CLI-TEST --scroll-duration 10 --headless true"
+  }
+}

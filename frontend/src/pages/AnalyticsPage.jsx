@@ -1,0 +1,62 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+export default function AnalyticsPage() {
+  const [sessions, setSessions] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [status, setStatus] = useState('all');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    axios.get(`/api/analytics/sessions?status=${status}&testEmail=${email}`)
+      .then(r => { setSessions(r.data.sessions || []); setTotal(r.data.total || 0); })
+      .finally(() => setLoading(false));
+  }, [status, email]);
+
+  return (
+    <div>
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div className="filter-row">
+          <select className="form-select" value={status} onChange={e => setStatus(e.target.value)}>
+            <option value="all">All Statuses</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="running">Running</option>
+            <option value="queued">Queued</option>
+          </select>
+          <input className="form-input" placeholder="Filter by email..." value={email} onChange={e => setEmail(e.target.value)} />
+          <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', fontSize: '.8rem', whiteSpace: 'nowrap' }}>{total} records</span>
+        </div>
+      </div>
+      <div className="card">
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Session ID</th><th>Identity</th><th>Target URL</th><th>Status</th><th>Duration</th><th>Load Time</th><th>Scroll</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={8} style={{ textAlign: 'center', padding: 32, color: 'var(--text-muted)' }}>Loading...</td></tr>
+              ) : sessions.length === 0 ? (
+                <tr><td colSpan={8}><div className="empty-state"><div className="icon">▲</div><p>No sessions match the current filters.</p></div></td></tr>
+              ) : sessions.map(s => (
+                <tr key={s._id}>
+                  <td><span style={{ fontFamily: 'var(--mono)', fontSize: '.72rem', color: 'var(--accent-light)' }}>{(s.sessionId || s._id || '').slice(0, 18)}</span></td>
+                  <td style={{ fontSize: '.78rem' }}>{s.testEmail || '—'}</td>
+                  <td style={{ fontSize: '.72rem', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.targetUrl || '—'}</td>
+                  <td><span className={`badge ${s.status === 'completed' ? 'badge-green' : s.status === 'failed' ? 'badge-red' : s.status === 'running' ? 'badge-yellow' : 'badge-blue'}`}>{s.status}</span></td>
+                  <td>{s.duration != null ? `${s.duration}s` : '—'}</td>
+                  <td>{s.pageLoadTime != null ? `${s.pageLoadTime}ms` : '—'}</td>
+                  <td>{s.scrollDepth != null ? `${s.scrollDepth}%` : '—'}</td>
+                  <td style={{ fontSize: '.72rem', whiteSpace: 'nowrap' }}>{s.createdAt ? new Date(s.createdAt).toLocaleString() : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
