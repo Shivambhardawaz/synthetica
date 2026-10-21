@@ -285,3 +285,40 @@ npm run dev
 - [x] **Rate Limiting**: Configured express rate limiter on API endpoints.
 - [x] **Audit Trail**: Every session creation, stop, and SSRF attempt is logged to the `AuditLog` collection.
 - [x] **Non-Malicious Automation**: User agent and cookies clearly identify test traffic (`TestAutomator/2.0`); does not attempt to evade bot detection or bypass third-party restrictions.
+
+---
+
+## 🚀 Live Deployments & Repository
+
+- **GitHub Repository**: [https://github.com/Shivambhardawaz/synthetica](https://github.com/Shivambhardawaz/synthetica)
+- **Vercel Production UI**: [https://synthetica-eight.vercel.app](https://synthetica-eight.vercel.app)
+
+---
+
+## ⟨/⟩ Embeddable Tracking Script for Your Own Websites
+
+To count visits on websites you control, paste this snippet before `</body>`:
+
+```html
+<script>
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  const email = p.get('test_email') || window.__SYNTHETICA_EMAIL || 'anonymous';
+  const sid = p.get('session_id') || 'visit_' + Date.now();
+
+  fetch('http://localhost:5000/api/analytics/track-visit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url: window.location.href,
+      testEmail: email,
+      sessionId: sid,
+      referrer: document.referrer,
+      screenResolution: window.innerWidth + 'x' + window.innerHeight
+    }),
+    keepalive: true
+  }).catch(function() {});
+})();
+</script>
+```
+When Playwright visits your site, it passes `test_email` and `session_id` automatically, and Synthetica logs the visitor.
